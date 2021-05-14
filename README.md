@@ -36,7 +36,7 @@ And finally, you can consume in batch:
 
     var results = consumerBatch.ConsumeBatch();
 
-Now you can seek (redelivery all messages in batch) in batch too:
+Now you can seek (redelivery all messages) in batch too:
 
     consumerBatch.SeekBatch();
 And if you need to commit, just do it, the same way as you usually do (**You don't need to use consumerBatch here**):
