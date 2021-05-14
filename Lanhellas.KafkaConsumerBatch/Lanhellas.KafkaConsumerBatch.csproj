@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <Company>Lanhellas</Company>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <FileVersion>1.0.0</FileVersion>
+        <Title>Lanhellas.KafkaConsumerBatch</Title>
+        <Authors>Ronaldo Lanhellas</Authors>
+        <Description>Library to consume kafka in batch</Description>
+        <PackageTags>kafka</PackageTags>
+        <PackageVersion>1.0.0-beta1</PackageVersion>
+        <PackageLicenseUrl>https://licenses.nuget.org/BSD-3-Clause</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/rlanhellas/Lanhellas.KafkaConsumerBatch</RepositoryUrl>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Confluent.Kafka" Version="1.6.3" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    </ItemGroup>
+
+</Project>
