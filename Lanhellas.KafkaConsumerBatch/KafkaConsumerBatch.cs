@@ -17,7 +17,7 @@ namespace Lanhellas.KafkaConsumerBatch
 
         public KafkaConsumerBatch(IConsumer<TKey,TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
         {
-            _records = new List<ConsumeResult<TKey, TValue>>();
+            _records = new List<ConsumeResult<TKey, TValue>>(batchSize);
             _batchSize = batchSize;
             _maxWaitTime = maxWaitTime;
             _consumer = consumer;
