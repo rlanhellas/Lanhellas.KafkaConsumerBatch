@@ -66,5 +66,17 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
 
             Assert.Same(expectedLogger, consumer._logger);
         }
+
+        [Fact]
+        public void Build_WithMultipleSets_ShouldConsiderLastValue()
+        {
+            int expectedBatchSize = 133;
+            var consumer = KafkaConsumerBatchBuilder<string, string>.Config()
+                .WithBatchSize(199)
+                .WithBatchSize(expectedBatchSize)
+                .Build() as KafkaConsumerBatch<string, string>;
+
+            Assert.Equal(expectedBatchSize, consumer._batchSize);
+        }
     }
 }

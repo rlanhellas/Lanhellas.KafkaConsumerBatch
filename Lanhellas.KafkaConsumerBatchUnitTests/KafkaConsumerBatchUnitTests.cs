@@ -3,6 +3,7 @@ using Lanhellas.KafkaConsumerBatch;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
+using System.Linq;
 using System.Threading;
 using Xunit;
 
@@ -53,6 +54,46 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
             Assert.Equal(batchSize, consumerBatch.ConsumeBatch().Count);
         }
 
+        [Fact]
+        public void SeekBatch_WhenHasOnlyOnePartitionTopic_ShouldReturnSingle()
+        {
+            consumerBatch._records.Add(CreateConsumeResult("", 1, 1));
+            Assert.Single(consumerBatch.SeekBatch());
+        }
 
+        [Fact]
+        public void SeekBatch_WhenHasOnlyOnePartitionTopic_ShouldReturnSingleWithMinOffset()
+        {
+            consumerBatch._records.Add(CreateConsumeResult("", 1, 1));
+            consumerBatch._records.Add(CreateConsumeResult("", 1, 2));
+            var seekBatchResult = consumerBatch.SeekBatch();
+            Assert.Single(seekBatchResult);
+            Assert.Equal(1, seekBatchResult.First().Offset);
+        }
+
+        [Theory]
+        [InlineData("", 1, 1L, "a", 1, 2L)]
+        [InlineData("", 1, 1L, "", 2, 2L)]
+        public void SeekBatch_WhenMoreThanOnePartitionTopic_ShouldReturnSingleWithMinOffset(
+            string firstTopic, int firstPartition, long firstOffset, 
+            string secondTopic, int secondPartition, long secondOffset)
+        {
+            consumerBatch._records.Add(CreateConsumeResult(firstTopic, firstPartition, firstOffset));
+            consumerBatch._records.Add(CreateConsumeResult(secondTopic, secondPartition, secondOffset));
+            var seekBatchResult = consumerBatch.SeekBatch();
+            Assert.Equal(2, seekBatchResult.Count);
+            Assert.Equal(firstOffset, seekBatchResult[0].Offset.Value);
+            Assert.Equal(secondOffset, seekBatchResult[1].Offset.Value);
+        }
+
+        private static ConsumeResult<string, string> CreateConsumeResult(string topic, int partition, long offset)
+        {
+            return new ConsumeResult<string, string>()
+            {
+                Topic = topic,
+                Partition = new Partition(partition),
+                Offset = new Offset(offset)
+            };
+        }
     }
 }

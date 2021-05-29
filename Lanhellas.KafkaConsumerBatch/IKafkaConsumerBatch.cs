@@ -6,6 +6,6 @@ namespace Lanhellas.KafkaConsumerBatch
     public interface IKafkaConsumerBatch<TKey, TValue>
     {
         IReadOnlyList<ConsumeResult<TKey, TValue>> ConsumeBatch();
-        void SeekBatch();
+        IReadOnlyList<TopicPartitionOffset> SeekBatch();
     }
 }
