@@ -10,10 +10,11 @@ namespace Lanhellas.KafkaConsumerBatch
     public class KafkaConsumerBatch<TKey, TValue> : IKafkaConsumerBatch<TKey, TValue>
     {
         private readonly List<ConsumeResult<TKey, TValue>> _records;
-        private readonly int _batchSize;
-        private readonly TimeSpan _maxWaitTime;
-        private readonly IConsumer<TKey, TValue> _consumer;
-        private readonly ILogger _logger;
+        
+        internal readonly int _batchSize;
+        internal readonly TimeSpan _maxWaitTime;
+        internal readonly IConsumer<TKey, TValue> _consumer;
+        internal readonly ILogger _logger;
 
         public KafkaConsumerBatch(IConsumer<TKey, TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
         {

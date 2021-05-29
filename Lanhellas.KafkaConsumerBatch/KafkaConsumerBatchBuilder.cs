@@ -13,7 +13,8 @@ namespace Lanhellas.KafkaConsumerBatch
 
         
         private KafkaConsumerBatchBuilder()
-        { }
+        { 
+        }
 
         public static KafkaConsumerBatchBuilder<TKey, TValue> Config()
         {
