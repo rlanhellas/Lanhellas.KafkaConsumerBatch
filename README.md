@@ -6,24 +6,28 @@ This library born from a needed to consume messages in batch style, using the fa
 
 You first need to create a consumer from *Confluent.Kafka* and **subscribe** in a topic, see:
 
-    var config = new ConsumerConfig  
-    {  
-      BootstrapServers = "localhost:9092",  
-      GroupId = "mygroup"
-    };  
-    var consumer = new ConsumerBuilder<string,string>(config).Build();  
-    consumer.Subscribe(topic);
+```c#
+var config = new ConsumerConfig  
+{  
+  BootstrapServers = "localhost:9092",  
+  GroupId = "mygroup"
+};  
+var consumer = new ConsumerBuilder<string,string>(config).Build();  
+consumer.Subscribe(topic);
+```
 
 Until here, nothing new, right? :D 
 
 Now you will need to create the **Batch Wrapper,** using the Builder Pattern, see how:
 
-    var consumerBatch = KafkaConsumerBatchBuilder<string, string>.Config()  
-     .WithConsumer(consumer)  
-     .WithLogger(_logger)  
-     .WithBatchSize(50)  
-     .WithMaxWaitTime(TimeSpan.FromSeconds(10))  
-     .Build();
+```c#
+var consumerBatch = KafkaConsumerBatchBuilder<string, string>.Config()  
+ .WithConsumer(consumer)  
+ .WithLogger(_logger)  
+ .WithBatchSize(50)  
+ .WithMaxWaitTime(TimeSpan.FromSeconds(10))  
+ .Build();
+```
 
 Take note of some important properties:
 
@@ -34,15 +38,21 @@ Take note of some important properties:
 
 And finally, you can consume in batch:
 
-    var results = consumerBatch.ConsumeBatch();
+```c#
+var results = consumerBatch.ConsumeBatch();
+```
 
 Now you can seek (redelivery all messages) in batch too:
 
-    consumerBatch.SeekBatch();
+```c#
+consumerBatch.SeekBatch();
+```
+
 And if you need to commit, just do it, the same way as you usually do (**You don't need to use consumerBatch here**):
 
-    consumer.Commit();
-
+```c#
+consumer.Commit();
+```
 
 
 ## You can contribute
