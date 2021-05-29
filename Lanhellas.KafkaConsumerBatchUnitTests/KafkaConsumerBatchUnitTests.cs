@@ -36,16 +36,15 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
             Assert.Empty(consumerBatch.ConsumeBatch());
         }
 
-        // should be true?
-        //[Fact]
-        //public void ConsumeBatch_WhenElapsedWaitTimeWithOneResult_ShouldReturnOneItem()
-        //{
-        //    mockConsumer.Setup(t => t.Consume(It.IsAny<TimeSpan>()))
-        //        .Callback(() => Thread.Sleep(maxWaitTime))
-        //        .Returns(new ConsumeResult<string, string>());
+        [Fact]
+        public void ConsumeBatch_WhenElapsedWaitTimeWithOneResult_ShouldReturnOneItem()
+        {
+            mockConsumer.Setup(t => t.Consume(It.IsAny<TimeSpan>()))
+                .Callback(() => Thread.Sleep(maxWaitTime))
+                .Returns(new ConsumeResult<string, string>());
 
-        //    Assert.Single(consumerBatch.ConsumeBatch());
-        //}
+            Assert.Single(consumerBatch.ConsumeBatch());
+        }
 
         [Fact]
         public void ConsumeBatch_WhenElapsedWaitTimeWithBatchSize_ShouldReturnCollectionWithBatchSize()

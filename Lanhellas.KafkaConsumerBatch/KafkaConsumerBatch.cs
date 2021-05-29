@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Confluent.Kafka;
 using Microsoft.Extensions.Logging;
 
 namespace Lanhellas.KafkaConsumerBatch
 {
-    public class KafkaConsumerBatch<TKey,TValue>
+    public class KafkaConsumerBatch<TKey, TValue>
     {
 
         private readonly ICollection<ConsumeResult<TKey, TValue>> _records;
@@ -15,7 +16,7 @@ namespace Lanhellas.KafkaConsumerBatch
         private readonly IConsumer<TKey, TValue> _consumer;
         private readonly ILogger _logger;
 
-        public KafkaConsumerBatch(IConsumer<TKey,TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
+        public KafkaConsumerBatch(IConsumer<TKey, TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
         {
             _records = new List<ConsumeResult<TKey, TValue>>(batchSize);
             _batchSize = batchSize;
@@ -28,11 +29,11 @@ namespace Lanhellas.KafkaConsumerBatch
         /// Consume records in batch, return to caller when batchSize is reached or when maxWaitTime is reached
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ConsumeResult<TKey,TValue>> ConsumeBatch()
+        public IEnumerable<ConsumeResult<TKey, TValue>> ConsumeBatch()
         {
-              _records.Clear();
-              StartConsume();
-              return _records;
+            _records.Clear();
+            StartConsume();
+            return _records;
         }
 
         /// <summary>
@@ -48,21 +49,24 @@ namespace Lanhellas.KafkaConsumerBatch
                 var minOffset = sublist.Min(s => s.Offset.Value);
                 var partition = sublist.Key.Value;
                 _logger.LogDebug("Seek Partition {} to Offset {}", partition, minOffset);
-                _consumer.Seek(new TopicPartitionOffset(sublist.First().Topic, new Partition(partition), new Offset(minOffset) ));
+                _consumer.Seek(new TopicPartitionOffset(sublist.First().Topic, new Partition(partition), new Offset(minOffset)));
             }
         }
 
         private void StartConsume()
         {
+            Stopwatch stopwatch = Stopwatch.StartNew();
             while (true)
             {
                 _logger.LogDebug("Actual Records Size {}, BatchSize {}", _records.Count, _batchSize);
-                if (_records.Count >= _batchSize)
+                TimeSpan remaining = _maxWaitTime - stopwatch.Elapsed;
+                if (_records.Count >= _batchSize
+                    || remaining < TimeSpan.Zero)
                 {
                     break;
                 }
 
-                var result = _consumer.Consume(_maxWaitTime);
+                var result = _consumer.Consume(remaining);
                 if (result != null)
                 {
                     _records.Add(result);
