@@ -52,7 +52,7 @@ namespace Lanhellas.KafkaConsumerBatch
             }
         }
 
-        private int StartConsume()
+        private void StartConsume()
         {
             List<ConsumeResult<TKey, TValue>> records = _records;
             var source = new CancellationTokenSource();
@@ -72,7 +72,6 @@ namespace Lanhellas.KafkaConsumerBatch
                     break;
                 }
             }
-            return records.Count;
         }
     }
 }
