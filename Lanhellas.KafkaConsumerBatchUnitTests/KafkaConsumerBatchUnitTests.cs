@@ -1,10 +1,8 @@
 using Confluent.Kafka;
 using Lanhellas.KafkaConsumerBatch;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System;
-using System.Linq;
 using System.Threading;
 using Xunit;
 
@@ -29,9 +27,9 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
         [Fact]
         public void ConsumeBatch_WhenElapsedWaitTimeWithNoResults_ShouldReturnEmptyCollection()
         {
-            mockConsumer.Setup(t => t.Consume(It.IsAny<TimeSpan>()))
+            mockConsumer.Setup(t => t.Consume(It.IsAny<CancellationToken>()))
                 .Callback(() => Thread.Sleep(maxWaitTime))
-                .Returns((ConsumeResult<string, string>)null);
+                .Throws(new OperationCanceledException());
 
             Assert.Empty(consumerBatch.ConsumeBatch());
         }
@@ -39,8 +37,8 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
         [Fact]
         public void ConsumeBatch_WhenElapsedWaitTimeWithOneResult_ShouldReturnOneItem()
         {
-            mockConsumer.Setup(t => t.Consume(It.IsAny<TimeSpan>()))
-                .Callback(() => Thread.Sleep(maxWaitTime))
+            mockConsumer.Setup(t => t.Consume(It.IsAny<CancellationToken>()))
+                .Callback(() => Thread.Sleep(maxWaitTime + TimeSpan.FromMilliseconds(50)))
                 .Returns(new ConsumeResult<string, string>());
 
             Assert.Single(consumerBatch.ConsumeBatch());
@@ -49,10 +47,10 @@ namespace Lanhellas.KafkaConsumerBatchUnitTests
         [Fact]
         public void ConsumeBatch_WhenElapsedWaitTimeWithBatchSize_ShouldReturnCollectionWithBatchSize()
         {
-            mockConsumer.Setup(t => t.Consume(It.IsAny<TimeSpan>()))
-                .Returns(new ConsumeResult<string, string>());
+            mockConsumer.Setup(t => t.Consume(It.IsAny<CancellationToken>()))
+                .Returns<CancellationToken>(s => s.IsCancellationRequested ? throw new OperationCanceledException() : new ConsumeResult<string, string>());
 
-            Assert.Equal(batchSize, consumerBatch.ConsumeBatch().Count());
+            Assert.Equal(batchSize, consumerBatch.ConsumeBatch().Count);
         }
 
 
