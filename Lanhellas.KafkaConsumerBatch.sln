@@ -1,6 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanhellas.KafkaConsumerBatch", "Lanhellas.KafkaConsumerBatch\Lanhellas.KafkaConsumerBatch.csproj", "{C6B53B59-80FE-49F4-A9EB-C2986734B628}"
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31229.75
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lanhellas.KafkaConsumerBatch", "Lanhellas.KafkaConsumerBatch\Lanhellas.KafkaConsumerBatch.csproj", "{C6B53B59-80FE-49F4-A9EB-C2986734B628}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lanhellas.KafkaConsumerBatchUnitTests", "Lanhellas.KafkaConsumerBatchUnitTests\Lanhellas.KafkaConsumerBatchUnitTests.csproj", "{C33661E7-9438-4C93-A6A0-7EC7A8BD83AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -12,5 +17,15 @@ Global
 		{C6B53B59-80FE-49F4-A9EB-C2986734B628}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6B53B59-80FE-49F4-A9EB-C2986734B628}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6B53B59-80FE-49F4-A9EB-C2986734B628}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C33661E7-9438-4C93-A6A0-7EC7A8BD83AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C33661E7-9438-4C93-A6A0-7EC7A8BD83AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C33661E7-9438-4C93-A6A0-7EC7A8BD83AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C33661E7-9438-4C93-A6A0-7EC7A8BD83AF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3EA1B816-8C01-44C2-ACA2-0DDA426E7D0D}
 	EndGlobalSection
 EndGlobal

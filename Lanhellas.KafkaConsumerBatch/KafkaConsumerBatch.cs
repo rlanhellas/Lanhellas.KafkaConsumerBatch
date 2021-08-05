@@ -1,23 +1,24 @@
+using Confluent.Kafka;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Confluent.Kafka;
-using Microsoft.Extensions.Logging;
+using System.Threading;
 
 namespace Lanhellas.KafkaConsumerBatch
 {
-    public class KafkaConsumerBatch<TKey,TValue>
+    public class KafkaConsumerBatch<TKey, TValue> : IKafkaConsumerBatch<TKey, TValue>
     {
+        internal readonly List<ConsumeResult<TKey, TValue>> _records;
+        
+        internal readonly int _batchSize;
+        internal readonly TimeSpan _maxWaitTime;
+        internal readonly IConsumer<TKey, TValue> _consumer;
+        internal readonly ILogger _logger;
 
-        private readonly ICollection<ConsumeResult<TKey, TValue>> _records;
-        private readonly int _batchSize;
-        private readonly TimeSpan _maxWaitTime;
-        private readonly IConsumer<TKey, TValue> _consumer;
-        private readonly ILogger _logger;
-
-        public KafkaConsumerBatch(IConsumer<TKey,TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
+        public KafkaConsumerBatch(IConsumer<TKey, TValue> consumer, int batchSize, TimeSpan maxWaitTime, ILogger logger)
         {
-            _records = new List<ConsumeResult<TKey, TValue>>();
+            _records = new List<ConsumeResult<TKey, TValue>>(batchSize);
             _batchSize = batchSize;
             _maxWaitTime = maxWaitTime;
             _consumer = consumer;
@@ -28,48 +29,49 @@ namespace Lanhellas.KafkaConsumerBatch
         /// Consume records in batch, return to caller when batchSize is reached or when maxWaitTime is reached
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<ConsumeResult<TKey,TValue>> ConsumeBatch()
+        public IReadOnlyList<ConsumeResult<TKey, TValue>> ConsumeBatch()
         {
-              _records.Clear();
-              StartConsume();
-              return _records;
+            _records.Clear();
+            StartConsume();
+            return _records;
         }
 
         /// <summary>
         /// Seek offets to minimum in batch, of all partitions that was consumed in this batch flow
         /// </summary>
-        /// <param name="consumer"></param>
-        public void SeekBatch()
+        /// <returns>Offsets</returns>
+        public IReadOnlyList<TopicPartitionOffset> SeekBatch()
         {
-            var sublists = _records.GroupBy(r => r.Partition).ToList();
+            var topicPartitionOffsets = _records
+                .GroupBy(r => r.TopicPartition)
+                .Select(sublist => new TopicPartitionOffset(sublist.Key, new Offset(sublist.Min(s => s.Offset.Value))))
+                .ToList();
 
-            foreach (var sublist in sublists)
+            foreach (var topicPartitionOffset in topicPartitionOffsets)
             {
-                var minOffset = sublist.Min(s => s.Offset.Value);
-                var partition = sublist.Key.Value;
-                _logger.LogDebug("Seek Partition {} to Offset {}", partition, minOffset);
-                _consumer.Seek(new TopicPartitionOffset(sublist.First().Topic, new Partition(partition), new Offset(minOffset) ));
+                _logger.LogDebug("Seek Partition {} to Offset {}", topicPartitionOffset.Partition.Value, topicPartitionOffset.Offset.Value);
+                _consumer.Seek(topicPartitionOffset);
             }
+            return topicPartitionOffsets;
         }
 
         private void StartConsume()
         {
-            while (true)
+            List<ConsumeResult<TKey, TValue>> records = _records;
+            var source = new CancellationTokenSource();
+            source.CancelAfter(_maxWaitTime);
+            int i = 0;
+            for (; i < _batchSize && !source.IsCancellationRequested; i++)
             {
-                _logger.LogDebug("Actual Records Size {}, BatchSize {}", _records.Count, _batchSize);
-                if (_records.Count >= _batchSize)
+                try
                 {
-                    break;
+                    records.Add(
+                        _consumer.Consume(source.Token));
+                    _logger.LogDebug("Actual Records Size {}, BatchSize {}", records.Count, _batchSize);
                 }
-
-                var result = _consumer.Consume(_maxWaitTime);
-                if (result != null)
+                catch (OperationCanceledException)
                 {
-                    _records.Add(result);
-                }
-                else
-                {
-                    _logger.LogDebug("Reached MaxWaitTime {}, Returning batch with {} results to caller", _maxWaitTime, _records.Count);
+                    _logger.LogDebug("Reached MaxWaitTime {}, Returning batch with {} results to caller", _maxWaitTime, records.Count);
                     break;
                 }
             }
