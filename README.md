@@ -54,6 +54,8 @@ And if you need to commit, just do it, the same way as you usually do (**You don
 consumer.Commit();
 ```
 
+Here is a complete example using this library: https://github.com/rlanhellas/ConsumerNetCoreBatchSample.
+
 
 ## You can contribute
 
