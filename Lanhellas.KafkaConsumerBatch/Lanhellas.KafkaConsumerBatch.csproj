@@ -9,7 +9,7 @@
         <Authors>Ronaldo Lanhellas</Authors>
         <Description>Library to consume kafka in batch</Description>
         <PackageTags>kafka</PackageTags>
-        <PackageVersion>1.0.0-beta1</PackageVersion>
+        <PackageVersion>1.0.0-beta2</PackageVersion>
         <PackageLicenseUrl>https://licenses.nuget.org/BSD-3-Clause</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/rlanhellas/Lanhellas.KafkaConsumerBatch</RepositoryUrl>
     </PropertyGroup>

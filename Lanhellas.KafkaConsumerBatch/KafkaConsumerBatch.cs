@@ -49,7 +49,7 @@ namespace Lanhellas.KafkaConsumerBatch
 
             foreach (var topicPartitionOffset in topicPartitionOffsets)
             {
-                _logger.LogDebug("Seek Partition {} to Offset {}", topicPartitionOffset.Partition.Value, topicPartitionOffset.Offset.Value);
+                _logger.LogDebug($"Seek Partition {topicPartitionOffset.Partition.Value} to Offset {topicPartitionOffset.Offset.Value}");
                 _consumer.Seek(topicPartitionOffset);
             }
             return topicPartitionOffsets;
@@ -67,11 +67,11 @@ namespace Lanhellas.KafkaConsumerBatch
                 {
                     records.Add(
                         _consumer.Consume(source.Token));
-                    _logger.LogDebug("Actual Records Size {}, BatchSize {}", records.Count, _batchSize);
+                    _logger.LogDebug($"Actual Records Size {records.Count}, BatchSize ${_batchSize}");
                 }
                 catch (OperationCanceledException)
                 {
-                    _logger.LogDebug("Reached MaxWaitTime {}, Returning batch with {} results to caller", _maxWaitTime, records.Count);
+                    _logger.LogDebug($"Reached MaxWaitTime {_maxWaitTime}, Returning batch with {records.Count} results to caller");
                     break;
                 }
             }
